@@ -1,0 +1,3006 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "BothWell API文件",
+    "version": "1.0.0"
+  },
+  "paths": {
+    "/v1/auth/register": {
+      "post": {
+        "summary": "註冊管理員",
+        "description": "註冊管理員",
+        "tags": [
+          "Auth"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "name",
+                  "email",
+                  "password"
+                ],
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "example": "fake name"
+                  },
+                  "email": {
+                    "type": "string",
+                    "format": "email",
+                    "description": "必須是唯一的",
+                    "example": "fake@example.com"
+                  },
+                  "password": {
+                    "type": "string",
+                    "description": "經過SHA256 hash的password",
+                    "example": "b2ff7db3502f5c37f6689e7ec65c932966ae0cb0d680a13620440eae28d73492"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/User"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/DuplicateEmail"
+          }
+        }
+      }
+    },
+    "/v1/auth/login": {
+      "post": {
+        "summary": "登入",
+        "description": "登入",
+        "tags": [
+          "Auth"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "email",
+                  "password"
+                ],
+                "properties": {
+                  "email": {
+                    "type": "string",
+                    "format": "email",
+                    "example": "fake@example.com"
+                  },
+                  "password": {
+                    "type": "string",
+                    "description": "經過SHA256 hash的password",
+                    "example": "b2ff7db3502f5c37f6689e7ec65c932966ae0cb0d680a13620440eae28d73492"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "headers": {
+              "Set-Cookie": {
+                "schema": {
+                  "type": "string",
+                  "example": {
+                    "type": "string",
+                    "example": "refresh_token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjEsImlhdCI6MTY2NDI2NDkzMywiZXhwIjoxNjY2ODU2OTMzLCJ0eXBlIjoicmVmcmVzaCJ9.uDxi6-wezASQf6nLj4wP115UEIRDqlHYtXyo4EUlOvA; Max-Age=1666851; Path=/; Expires=Sun 16 Oct 2022 14:49:44 GMT"
+                  }
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "user": {
+                      "$ref": "#/components/schemas/User"
+                    },
+                    "access_token": {
+                      "type": "string",
+                      "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI1ZWJhYzUzNDk1NGI1NDEzOTgwNmMxMTIiLCJpYXQiOjE1ODkyOTg0ODQsImV4cCI6MTU4OTMwMDI4NH0.m1U63blB0MLej_WfB7yC2FTMnCziif9X8yzwDEfJXAg"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Invalid email or password",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "code": 401,
+                  "message": "Invalid email or password"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/auth/logout": {
+      "post": {
+        "summary": "登出",
+        "description": "登出",
+        "tags": [
+          "Auth"
+        ],
+        "security": [
+          {
+            "cookieAuth": []
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No content"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      }
+    },
+    "/v1/auth/refresh-tokens": {
+      "post": {
+        "summary": "刷新token",
+        "description": "刷新token",
+        "tags": [
+          "Auth"
+        ],
+        "security": [
+          {
+            "cookieAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "headers": {
+              "Set-Cookie": {
+                "schema": {
+                  "type": "string",
+                  "example": {
+                    "type": "string",
+                    "example": "refresh_token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjEsImlhdCI6MTY2NDI2NDkzMywiZXhwIjoxNjY2ODU2OTMzLCJ0eXBlIjoicmVmcmVzaCJ9.uDxi6-wezASQf6nLj4wP115UEIRDqlHYtXyo4EUlOvA; Max-Age=1666851; Path=/; Expires=Sun 16 Oct 2022 14:49:44 GMT"
+                  }
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "access_token": {
+                      "type": "string",
+                      "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI1ZWJhYzUzNDk1NGI1NDEzOTgwNmMxMTIiLCJpYXQiOjE1ODkyOTg0ODQsImV4cCI6MTU4OTMwMDI4NH0.m1U63blB0MLej_WfB7yC2FTMnCziif9X8yzwDEfJXAg"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          }
+        }
+      }
+    },
+    "/v1/auth/forgot-password": {
+      "post": {
+        "summary": "忘記密碼",
+        "description": "會寄重設密碼需要驗證的token到輸入的信箱",
+        "tags": [
+          "Auth"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "email"
+                ],
+                "properties": {
+                  "email": {
+                    "type": "string",
+                    "format": "email",
+                    "example": "fake@example.com"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "No content"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      }
+    },
+    "/v1/auth/reset-password": {
+      "post": {
+        "summary": "重設密碼",
+        "description": "重設密碼",
+        "tags": [
+          "Auth"
+        ],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "token",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "重設密碼需要驗證的token"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "password"
+                ],
+                "properties": {
+                  "password": {
+                    "type": "string",
+                    "description": "經過SHA256 hash的password",
+                    "example": "b2ff7db3502f5c37f6689e7ec65c932966ae0cb0d680a13620440eae28d73492"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "No content"
+          },
+          "401": {
+            "description": "Password reset failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "code": 401,
+                  "message": "Password reset failed"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/users": {
+      "post": {
+        "summary": "新增帳號",
+        "description": "只有admin可以新增帳號",
+        "tags": [
+          "Users"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "name",
+                  "email",
+                  "password",
+                  "role"
+                ],
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "example": "fake name"
+                  },
+                  "email": {
+                    "type": "string",
+                    "format": "email",
+                    "description": "必須是唯一的",
+                    "example": "fake@example.com"
+                  },
+                  "password": {
+                    "type": "string",
+                    "description": "經過SHA256 hash的password",
+                    "example": "b2ff7db3502f5c37f6689e7ec65c932966ae0cb0d680a13620440eae28d73492"
+                  },
+                  "role": {
+                    "type": "string",
+                    "enum": [
+                      "user",
+                      "admin"
+                    ],
+                    "example": "user"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/User"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/DuplicateEmail"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          }
+        }
+      },
+      "get": {
+        "summary": "取得帳號列表",
+        "description": "只有admin可以取得所有帳號",
+        "tags": [
+          "Users"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "email",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "name",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "superior_email",
+            "schema": {
+              "type": "string"
+            },
+            "description": "上級email"
+          },
+          {
+            "in": "query",
+            "name": "superior_name",
+            "schema": {
+              "type": "string"
+            },
+            "description": "上級name"
+          },
+          {
+            "in": "query",
+            "name": "role",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "sort_by",
+            "schema": {
+              "type": "string"
+            },
+            "description": "依欄位排序asc/desc (ex. id:asc)"
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "default": 10
+            },
+            "description": "最大取得筆數"
+          },
+          {
+            "in": "query",
+            "name": "page",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "default": 1
+            },
+            "description": "頁數"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "count": {
+                      "type": "integer",
+                      "example": 1
+                    },
+                    "rows": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/User"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          }
+        }
+      }
+    },
+    "/v1/users/{id}": {
+      "get": {
+        "summary": "取得帳號資訊",
+        "description": "登入的帳號可以取得自己的帳號資訊，admin可以取得其他帳號資訊",
+        "tags": [
+          "Users"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/User"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      },
+      "patch": {
+        "summary": "更新帳號",
+        "description": "登入的帳號可以更新自己的帳號資訊，admin可以更新其他帳號資訊",
+        "tags": [
+          "Users"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "example": "fake name"
+                  },
+                  "email": {
+                    "type": "string",
+                    "format": "email",
+                    "description": "必須是唯一的",
+                    "example": "fake@example.com"
+                  },
+                  "password": {
+                    "type": "string",
+                    "description": "經過SHA256 hash的password",
+                    "example": "b2ff7db3502f5c37f6689e7ec65c932966ae0cb0d680a13620440eae28d73492"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/User"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/DuplicateEmail"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      }
+    },
+    "/v1/logs": {
+      "get": {
+        "summary": "取得系統紀錄",
+        "description": "取得系統紀錄",
+        "tags": [
+          "Logs"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "name",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "sort_by",
+            "schema": {
+              "type": "string"
+            },
+            "description": "依欄位排序asc/desc (ex. id:asc)"
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "default": 10
+            },
+            "description": "最大取得筆數"
+          },
+          {
+            "in": "query",
+            "name": "page",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "default": 1
+            },
+            "description": "頁數"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "count": {
+                      "type": "integer",
+                      "example": 1
+                    },
+                    "rows": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Log"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          }
+        }
+      }
+    },
+    "/v1/Acceptance": {
+      "post": {
+        "summary": "POST Acceptance",
+        "description": "POST Acceptance",
+        "tags": [
+          "Acceptance"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "inpno": {
+                    "type": "string"
+                  },
+                  "inpnp": {
+                    "type": "string"
+                  },
+                  "lifnr": {
+                    "type": "string"
+                  },
+                  "fac_id": {
+                    "type": "string"
+                  },
+                  "eindt": {
+                    "type": "string"
+                  },
+                  "ebeln": {
+                    "type": "string"
+                  },
+                  "ebelp": {
+                    "type": "string"
+                  },
+                  "aufnr": {
+                    "type": "string"
+                  },
+                  "charg": {
+                    "type": "string"
+                  },
+                  "menge": {
+                    "type": "string"
+                  },
+                  "netpr": {
+                    "type": "string"
+                  },
+                  "vmeng": {
+                    "type": "string"
+                  },
+                  "vnetp": {
+                    "type": "string"
+                  },
+                  "rmeng": {
+                    "type": "string"
+                  },
+                  "xmeng": {
+                    "type": "string"
+                  },
+                  "dnetp": {
+                    "type": "string"
+                  },
+                  "remark": {
+                    "type": "string"
+                  },
+                  "lwork": {
+                    "type": "string"
+                  },
+                  "cdate": {
+                    "type": "string"
+                  },
+                  "docno": {
+                    "type": "string"
+                  },
+                  "action": {
+                    "type": "string"
+                  },
+                  "last": {
+                    "type": "string"
+                  },
+                  "asnum": {
+                    "type": "integer"
+                  },
+                  "dcnum": {
+                    "type": "integer"
+                  },
+                  "status": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PostAcceptance"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          }
+        }
+      },
+      "get": {
+        "summary": "取得外加工入廠驗收單",
+        "description": "取得外加工入廠驗收單",
+        "tags": [
+          "Acceptance"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "auart",
+            "description": "工單單別",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "aufnr",
+            "description": "工單單號",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "inpno",
+            "description": "驗收單號",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "matnr",
+            "description": "品號",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "maktx",
+            "description": "品名",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "lifnr",
+            "description": "廠商代號",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "eindt_cb",
+            "description": "是否啟用交貨日期",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "in": "query",
+            "name": "eindt_start",
+            "description": "交貨日期(起)",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "eindt_end",
+            "description": "交貨日期(訖)",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "laeda_cb",
+            "description": "是否啟用統計表日期",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "in": "query",
+            "name": "laeda_start",
+            "description": "統計表日期(起)",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "laeda_end",
+            "description": "統計表日期(訖)",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "netprzero_cb",
+            "description": "單價是否為零",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "in": "query",
+            "name": "noflag_cb",
+            "description": "是否未收料",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "in": "query",
+            "name": "fill_cb",
+            "description": "是否補量",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "in": "query",
+            "name": "loekz_ne",
+            "description": "驗收單刪除旗標，如果原始API有 Loekz ne 'X'，請帶參數loekz_ne=X",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "laeda",
+            "description": "統計表日期",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "zconfirm",
+            "description": "統計表日期",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "fac_id",
+            "description": "入廠單號",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "flag",
+            "description": "是否收料，如果原始API有 Flag eq 'S'，請帶參數flag=S",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "results": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Acceptance"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          }
+        }
+      }
+    },
+    "/v1/AccFlow": {
+      "get": {
+        "summary": "取得流程卡",
+        "description": "取得流程卡",
+        "tags": [
+          "AccFlow"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "inpno",
+            "description": "驗收單號",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "inpnp",
+            "description": "驗收項次",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "results": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/AccFlow"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          }
+        }
+      }
+    },
+    "/v1/DailyWork": {
+      "post": {
+        "summary": "新增報工紀錄",
+        "description": "新增報工紀錄",
+        "tags": [
+          "DailyWork"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Created"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          }
+        }
+      },
+      "get": {
+        "summary": "取得報工紀錄",
+        "description": "取得報工紀錄",
+        "tags": [
+          "DailyWork"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          }
+        }
+      },
+      "put": {
+        "summary": "更新報工紀錄",
+        "description": "更新報工紀錄",
+        "tags": [
+          "DailyWork"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      }
+    },
+    "/v1/FlowCard": {
+      "post": {
+        "summary": "POST FlowCard",
+        "description": "POST FlowCard",
+        "tags": [
+          "FlowCard"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "action": {
+                    "type": "string"
+                  },
+                  "aufnr": {
+                    "type": "string"
+                  },
+                  "docno": {
+                    "type": "string"
+                  },
+                  "ebeln": {
+                    "type": "string"
+                  },
+                  "ebelp": {
+                    "type": "string"
+                  },
+                  "lifnr": {
+                    "type": "string"
+                  },
+                  "menge": {
+                    "type": "string"
+                  },
+                  "nvornr": {
+                    "type": "string"
+                  },
+                  "recode": {
+                    "type": "string"
+                  },
+                  "status": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PostFlowCard"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          }
+        }
+      },
+      "get": {
+        "summary": "取得流程卡",
+        "description": "取得流程卡",
+        "tags": [
+          "FlowCard"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "auart",
+            "description": "工單單別",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "aufnr",
+            "description": "工單單號",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "vornr",
+            "description": "製程代號",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "ktsch",
+            "description": "標準內文碼",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "matnr",
+            "description": "品號",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "maktx",
+            "description": "品名",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "gltrp_cb",
+            "description": "是否啟用預計完成日",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "in": "query",
+            "name": "gltrp_start",
+            "description": "預計完成日(起)",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "gltrp_end",
+            "description": "預計完成日(訖)",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "budat_cb",
+            "description": "是否啟用領料日期",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "in": "query",
+            "name": "budat_start",
+            "description": "領料日期(起)",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "budat_end",
+            "description": "領料日期(訖)",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "erdat_cb",
+            "description": "是否啟用變更日期",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "in": "query",
+            "name": "erdat_start",
+            "description": "變更日期(起)",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "erdat_end",
+            "description": "變更日期(訖)",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "status",
+            "description": "狀態",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "lifnr",
+            "description": "廠商代號",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "docno",
+            "description": "流程卡號",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "results": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/FlowCard"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          }
+        }
+      }
+    },
+    "/v1/FlowCard/{docno}": {
+      "get": {
+        "summary": "取得流程卡",
+        "description": "取得流程卡",
+        "tags": [
+          "FlowCard"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "docno",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FlowCard"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      }
+    },
+    "/v1/InvQuery": {
+      "get": {
+        "summary": "庫存查詢",
+        "description": "庫存查詢",
+        "tags": [
+          "InvQuery"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          }
+        }
+      }
+    },
+    "/v1/MMDoc": {
+      "get": {
+        "summary": "取得物料異動文件",
+        "description": "取得物料異動文件",
+        "tags": [
+          "MMDoc"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          }
+        }
+      }
+    },
+    "/v1/NotClosedPO": {
+      "post": {
+        "summary": "新增採購單",
+        "description": "新增採購單",
+        "tags": [
+          "NotClosedPO"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Created"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          }
+        }
+      },
+      "get": {
+        "summary": "取得採購單",
+        "description": "取得採購單",
+        "tags": [
+          "NotClosedPO"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          }
+        }
+      },
+      "put": {
+        "summary": "更新採購單",
+        "description": "更新採購單",
+        "tags": [
+          "NotClosedPO"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      }
+    },
+    "/v1/OutFacDoc": {
+      "post": {
+        "summary": "新增出廠單",
+        "description": "新增出廠單",
+        "tags": [
+          "OutFacDoc"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Created"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          }
+        }
+      },
+      "get": {
+        "summary": "取得出廠單",
+        "description": "取得出廠單",
+        "tags": [
+          "OutFacDoc"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          }
+        }
+      },
+      "put": {
+        "summary": "更新出廠單",
+        "description": "更新出廠單",
+        "tags": [
+          "OutFacDoc"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      }
+    },
+    "/v1/ReReason": {
+      "get": {
+        "summary": "取得流程卡狀態退回原因",
+        "description": "取得流程卡狀態退回原因",
+        "tags": [
+          "ReReason"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          }
+        }
+      }
+    },
+    "/v1/SO": {
+      "get": {
+        "summary": "取得銷售訂單",
+        "description": "取得銷售訂單",
+        "tags": [
+          "SO"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          }
+        }
+      }
+    },
+    "/v1/StandardPrice": {
+      "post": {
+        "summary": "新增單價",
+        "description": "新增單價",
+        "tags": [
+          "StandardPrice"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Created"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          }
+        }
+      },
+      "get": {
+        "summary": "取得單價",
+        "description": "取得單價",
+        "tags": [
+          "StandardPrice"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          }
+        }
+      },
+      "put": {
+        "summary": "更新單價",
+        "description": "更新單價",
+        "tags": [
+          "StandardPrice"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      }
+    },
+    "/v1/Vendor": {
+      "post": {
+        "summary": "新增協力廠",
+        "description": "新增協力廠",
+        "tags": [
+          "Vendor"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Created"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          }
+        }
+      },
+      "get": {
+        "summary": "取得協力廠",
+        "description": "取得協力廠",
+        "tags": [
+          "Vendor"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          }
+        }
+      },
+      "put": {
+        "summary": "更新協力廠",
+        "description": "更新協力廠",
+        "tags": [
+          "Vendor"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Token": {
+        "type": "object",
+        "properties": {
+          "token": {
+            "type": "string",
+            "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI1ZWJhYzUzNDk1NGI1NDEzOTgwNmMxMTIiLCJpYXQiOjE1ODkyOTg0ODQsImV4cCI6MTU4OTMwMDI4NH0.m1U63blB0MLej_WfB7yC2FTMnCziif9X8yzwDEfJXAg"
+          },
+          "expires": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2022-09-01T16:18:04.793Z"
+          }
+        }
+      },
+      "AuthTokens": {
+        "type": "object",
+        "properties": {
+          "access": {
+            "$ref": "#/components/schemas/Token"
+          },
+          "refresh": {
+            "$ref": "#/components/schemas/Token"
+          }
+        }
+      },
+      "Error": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "number"
+          },
+          "message": {
+            "type": "string"
+          }
+        }
+      },
+      "User": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "example": 1
+          },
+          "name": {
+            "type": "string",
+            "example": "fake name"
+          },
+          "email": {
+            "type": "string",
+            "format": "email",
+            "example": "fake@example.com"
+          },
+          "role": {
+            "type": "string",
+            "enum": [
+              "user",
+              "admin"
+            ],
+            "example": "user"
+          },
+          "superior_id": {
+            "type": "boolean",
+            "description": "上級user_id",
+            "example": 1
+          },
+          "status": {
+            "type": "integer",
+            "description": "狀態:0未啟用、1啟用、2忘記密碼",
+            "example": 0
+          }
+        }
+      },
+      "Log": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "example": 1
+          },
+          "name": {
+            "type": "string",
+            "example": "fake log"
+          }
+        }
+      },
+      "PostAcceptance": {
+        "type": "object",
+        "properties": {
+          "E_MESG": {
+            "type": "string",
+            "example": ""
+          },
+          "E_TYPE": {
+            "type": "string",
+            "example": "S"
+          },
+          "ASNUM": {
+            "type": "integer",
+            "example": 0
+          },
+          "DCNUM": {
+            "type": "integer",
+            "example": 0
+          },
+          "LAST": {
+            "type": "string",
+            "example": ""
+          },
+          "DSTATUS": {
+            "type": "string",
+            "example": ""
+          },
+          "INPNO": {
+            "type": "string",
+            "example": "0010003838"
+          },
+          "INPNP": {
+            "type": "string",
+            "example": "0010"
+          },
+          "LIFNR": {
+            "type": "string",
+            "example": ""
+          },
+          "FAC_ID": {
+            "type": "string",
+            "example": ""
+          },
+          "EINDT": {
+            "type": "string",
+            "example": ""
+          },
+          "ERDAT": {
+            "type": "string",
+            "example": ""
+          },
+          "LAEDA": {
+            "type": "string",
+            "example": ""
+          },
+          "EBELN": {
+            "type": "string",
+            "example": ""
+          },
+          "EBELP": {
+            "type": "string",
+            "example": ""
+          },
+          "AUFNR": {
+            "type": "string",
+            "example": ""
+          },
+          "CHARG": {
+            "type": "string",
+            "example": ""
+          },
+          "MENGE": {
+            "type": "string",
+            "example": "0.000"
+          },
+          "NETPR": {
+            "type": "string",
+            "example": "0.00"
+          },
+          "VMENG": {
+            "type": "string",
+            "example": "0.000"
+          },
+          "VNETP": {
+            "type": "string",
+            "example": "0.00"
+          },
+          "RMENG": {
+            "type": "string",
+            "example": "0.000"
+          },
+          "XMENG": {
+            "type": "string",
+            "example": "0.000"
+          },
+          "DNETP": {
+            "type": "string",
+            "example": "0.00"
+          },
+          "REMARK": {
+            "type": "string",
+            "example": ""
+          },
+          "MBLNR": {
+            "type": "string",
+            "example": ""
+          },
+          "MJAHR": {
+            "type": "string",
+            "example": ""
+          },
+          "ZEILE": {
+            "type": "string",
+            "example": ""
+          },
+          "LWORK": {
+            "type": "string",
+            "example": ""
+          },
+          "FLAG": {
+            "type": "string",
+            "example": ""
+          },
+          "STATUS": {
+            "type": "string",
+            "example": ""
+          },
+          "LOEKZ": {
+            "type": "string",
+            "example": ""
+          },
+          "CDATE": {
+            "type": "string",
+            "example": ""
+          },
+          "ICDOC": {
+            "type": "string",
+            "example": ""
+          },
+          "CSAVE": {
+            "type": "string",
+            "example": ""
+          },
+          "SORTL": {
+            "type": "string",
+            "example": ""
+          },
+          "AUART": {
+            "type": "string",
+            "example": ""
+          },
+          "MATNR": {
+            "type": "string",
+            "example": ""
+          },
+          "VORNR": {
+            "type": "string",
+            "example": ""
+          },
+          "NETPR_P": {
+            "type": "string",
+            "example": "0.00"
+          },
+          "WAERS": {
+            "type": "string",
+            "example": ""
+          },
+          "GMEIN": {
+            "type": "string",
+            "example": ""
+          },
+          "WEMNG": {
+            "type": "string",
+            "example": "0.000"
+          },
+          "GSTRP": {
+            "type": "string",
+            "example": ""
+          },
+          "GLTRP": {
+            "type": "string",
+            "example": ""
+          },
+          "MGVRG": {
+            "type": "string",
+            "example": "0.000"
+          },
+          "LMNGA": {
+            "type": "string",
+            "example": "0.000"
+          },
+          "MAKTX": {
+            "type": "string",
+            "example": ""
+          },
+          "NORMT": {
+            "type": "string",
+            "example": ""
+          },
+          "REMARK_PO": {
+            "type": "string",
+            "example": ""
+          },
+          "NTGEW": {
+            "type": "string",
+            "example": "0.000"
+          },
+          "MEINS": {
+            "type": "string",
+            "example": ""
+          },
+          "STATUS_PO": {
+            "type": "string",
+            "example": ""
+          },
+          "KTSCH": {
+            "type": "string",
+            "example": ""
+          },
+          "EDATU": {
+            "type": "string",
+            "example": ""
+          },
+          "GROES": {
+            "type": "string",
+            "example": ""
+          },
+          "AEDAT": {
+            "type": "string",
+            "example": ""
+          },
+          "ELIKZ": {
+            "type": "string",
+            "example": ""
+          },
+          "TXT": {
+            "type": "string",
+            "example": ""
+          },
+          "INFNR": {
+            "type": "string",
+            "example": ""
+          },
+          "DOCNO": {
+            "type": "string",
+            "example": ""
+          },
+          "ACTION": {
+            "type": "string",
+            "example": "R"
+          },
+          "ZCONFIRM": {
+            "type": "string",
+            "example": ""
+          },
+          "CRMENG": {
+            "type": "string",
+            "example": "0.000"
+          },
+          "FILL": {
+            "type": "string",
+            "example": ""
+          }
+        }
+      },
+      "Acceptance": {
+        "type": "object",
+        "properties": {
+          "INPNO": {
+            "type": "string",
+            "example": "0010012324"
+          },
+          "INPNP": {
+            "type": "string",
+            "example": "0020"
+          },
+          "LIFNR": {
+            "type": "string",
+            "example": "BWHP-001"
+          },
+          "FAC_ID": {
+            "type": "string",
+            "example": "2022080019"
+          },
+          "EINDT": {
+            "type": "string",
+            "example": "20220803"
+          },
+          "ERDAT": {
+            "type": "string",
+            "example": "20220803"
+          },
+          "LAEDA": {
+            "type": "string",
+            "example": "20220803"
+          },
+          "EBELN": {
+            "type": "string",
+            "example": "5100367724"
+          },
+          "EBELP": {
+            "type": "string",
+            "example": "00010"
+          },
+          "AUFNR": {
+            "type": "string",
+            "example": "002000223214"
+          },
+          "CHARG": {
+            "type": "string",
+            "example": "3130"
+          },
+          "MENGE": {
+            "type": "string",
+            "example": "100.000"
+          },
+          "NETPR": {
+            "type": "string",
+            "example": "8.00"
+          },
+          "VMENG": {
+            "type": "string",
+            "example": "100.000"
+          },
+          "VNETP": {
+            "type": "string",
+            "example": "8.00"
+          },
+          "RMENG": {
+            "type": "string",
+            "example": "0.000"
+          },
+          "XMENG": {
+            "type": "string",
+            "example": "0.000"
+          },
+          "DNETP": {
+            "type": "string",
+            "example": "0.00"
+          },
+          "REMARK": {
+            "type": "string",
+            "example": ""
+          },
+          "MBLNR": {
+            "type": "string",
+            "example": "5001418055"
+          },
+          "MJAHR": {
+            "type": "string",
+            "example": "2022"
+          },
+          "ZEILE": {
+            "type": "string",
+            "example": "0007"
+          },
+          "LWORK": {
+            "type": "string",
+            "example": "X"
+          },
+          "FLAG": {
+            "type": "string",
+            "example": "S"
+          },
+          "STATUS": {
+            "type": "string",
+            "example": "X"
+          },
+          "LOEKZ": {
+            "type": "string",
+            "example": ""
+          },
+          "CDATE": {
+            "type": "string",
+            "example": "20220804"
+          },
+          "ICDOC": {
+            "type": "string",
+            "example": ""
+          },
+          "CSAVE": {
+            "type": "string",
+            "example": "X"
+          },
+          "SORTL": {
+            "type": "string",
+            "example": "慶富"
+          },
+          "AUART": {
+            "type": "string",
+            "example": "BW02"
+          },
+          "MATNR": {
+            "type": "string",
+            "example": "XOLACA0680002K000"
+          },
+          "VORNR": {
+            "type": "string",
+            "example": "0020"
+          },
+          "NETPR_P": {
+            "type": "string",
+            "example": "8.00"
+          },
+          "WAERS": {
+            "type": "string",
+            "example": "TWD"
+          },
+          "GMEIN": {
+            "type": "string",
+            "example": "PCS"
+          },
+          "WEMNG": {
+            "type": "string",
+            "example": "100.000"
+          },
+          "GSTRP": {
+            "type": "string",
+            "example": "20220712"
+          },
+          "GLTRP": {
+            "type": "string",
+            "example": "20220721"
+          },
+          "MGVRG": {
+            "type": "string",
+            "example": "100.000"
+          },
+          "LMNGA": {
+            "type": "string",
+            "example": "100.000"
+          },
+          "MAKTX": {
+            "type": "string",
+            "example": "鞍頭 A105 3/4\"×8\" 3000# SW"
+          },
+          "NORMT": {
+            "type": "string",
+            "example": "BSD135"
+          },
+          "REMARK_PO": {
+            "type": "string",
+            "example": "S0002"
+          },
+          "NTGEW": {
+            "type": "string",
+            "example": "0.200"
+          },
+          "MEINS": {
+            "type": "string",
+            "example": "PCS"
+          },
+          "STATUS_PO": {
+            "type": "string",
+            "example": "X"
+          },
+          "KTSCH": {
+            "type": "string",
+            "example": "BW117"
+          },
+          "EDATU": {
+            "type": "string",
+            "example": "20220729"
+          },
+          "GROES": {
+            "type": "string",
+            "example": "3/4\"X8\"R"
+          },
+          "AEDAT": {
+            "type": "string",
+            "example": "20220713"
+          },
+          "ELIKZ": {
+            "type": "string",
+            "example": "Y"
+          },
+          "TXT": {
+            "type": "string",
+            "example": "鑽車-委外"
+          },
+          "INFNR": {
+            "type": "string",
+            "example": "5500242674"
+          },
+          "DOCNO": {
+            "type": "string",
+            "example": ""
+          },
+          "ACTION": {
+            "type": "string",
+            "example": ""
+          },
+          "ZCONFIRM": {
+            "type": "string",
+            "example": ""
+          },
+          "CRMENG": {
+            "type": "string",
+            "example": "0.000"
+          },
+          "FILL": {
+            "type": "string",
+            "example": ""
+          }
+        }
+      },
+      "AccFlow": {
+        "type": "object",
+        "properties": {
+          "MANDT": {
+            "type": "string",
+            "example": "800"
+          },
+          "INPNO": {
+            "type": "string",
+            "example": "0010012324"
+          },
+          "DOCNO": {
+            "type": "string",
+            "example": "0020002234240100"
+          }
+        }
+      },
+      "PostFlowCard": {
+        "type": "object",
+        "properties": {
+          "DOCNO": {
+            "type": "string",
+            "example": "0020002223210100"
+          },
+          "STATUS": {
+            "type": "string",
+            "example": ""
+          },
+          "MBLNR": {
+            "type": "string",
+            "example": ""
+          },
+          "MJAHR": {
+            "type": "string",
+            "example": ""
+          },
+          "ZEILE": {
+            "type": "string",
+            "example": ""
+          },
+          "BUDAT": {
+            "type": "string",
+            "example": ""
+          },
+          "MATNR": {
+            "type": "string",
+            "example": ""
+          },
+          "MENGE": {
+            "type": "string",
+            "example": "0.000"
+          },
+          "MEINS": {
+            "type": "string",
+            "example": ""
+          },
+          "HEAT_NO": {
+            "type": "string",
+            "example": ""
+          },
+          "CHARG": {
+            "type": "string",
+            "example": ""
+          },
+          "AUFNR": {
+            "type": "string",
+            "example": ""
+          },
+          "KDAUF": {
+            "type": "string",
+            "example": ""
+          },
+          "KDPOS": {
+            "type": "string",
+            "example": ""
+          },
+          "LGORT": {
+            "type": "string",
+            "example": ""
+          },
+          "EBELN": {
+            "type": "string",
+            "example": ""
+          },
+          "EBELP": {
+            "type": "string",
+            "example": ""
+          },
+          "ERDAT": {
+            "type": "string",
+            "example": ""
+          },
+          "CPUTM": {
+            "type": "string",
+            "example": ""
+          },
+          "LIFNR": {
+            "type": "string",
+            "example": ""
+          },
+          "SORTL": {
+            "type": "string",
+            "example": ""
+          },
+          "AUART": {
+            "type": "string",
+            "example": ""
+          },
+          "VORNR": {
+            "type": "string",
+            "example": ""
+          },
+          "NETPR": {
+            "type": "string",
+            "example": "0.00"
+          },
+          "WAERS": {
+            "type": "string",
+            "example": ""
+          },
+          "GMEIN": {
+            "type": "string",
+            "example": ""
+          },
+          "WEMNG": {
+            "type": "string",
+            "example": "0.000"
+          },
+          "GSTRP": {
+            "type": "string",
+            "example": ""
+          },
+          "GLTRP": {
+            "type": "string",
+            "example": ""
+          },
+          "MGVRG": {
+            "type": "string",
+            "example": "0.000"
+          },
+          "LMNGA": {
+            "type": "string",
+            "example": "0.000"
+          },
+          "MAKTX": {
+            "type": "string",
+            "example": ""
+          },
+          "NORMT": {
+            "type": "string",
+            "example": ""
+          },
+          "REMARK": {
+            "type": "string",
+            "example": ""
+          },
+          "NTGEW": {
+            "type": "string",
+            "example": "0.000"
+          },
+          "STATUS_PO": {
+            "type": "string",
+            "example": ""
+          },
+          "KTSCH": {
+            "type": "string",
+            "example": ""
+          },
+          "EDATU": {
+            "type": "string",
+            "example": ""
+          },
+          "GROES": {
+            "type": "string",
+            "example": ""
+          },
+          "AEDAT": {
+            "type": "string",
+            "example": ""
+          },
+          "ELIKZ": {
+            "type": "string",
+            "example": ""
+          },
+          "TXT": {
+            "type": "string",
+            "example": ""
+          },
+          "INFNR": {
+            "type": "string",
+            "example": ""
+          },
+          "ACTION": {
+            "type": "string",
+            "example": "R"
+          },
+          "NONPO": {
+            "type": "string",
+            "example": ""
+          },
+          "RECODE": {
+            "type": "string",
+            "example": ""
+          },
+          "CMENGE": {
+            "type": "string",
+            "example": "0.000"
+          },
+          "MUTIPO": {
+            "type": "string",
+            "example": ""
+          },
+          "IDNRK": {
+            "type": "string",
+            "example": ""
+          },
+          "IDMKT": {
+            "type": "string",
+            "example": ""
+          },
+          "NVORNR": {
+            "type": "string",
+            "example": ""
+          }
+        }
+      },
+      "FlowCard": {
+        "type": "object",
+        "properties": {
+          "DOCNO": {
+            "type": "string",
+            "example": "0020002223210100"
+          },
+          "STATUS": {
+            "type": "string",
+            "example": "6"
+          },
+          "MBLNR": {
+            "type": "string",
+            "example": "4902121076"
+          },
+          "MJAHR": {
+            "type": "string",
+            "example": "2022"
+          },
+          "ZEILE": {
+            "type": "string",
+            "example": "0011"
+          },
+          "BUDAT": {
+            "type": "string",
+            "example": "20220701"
+          },
+          "MATNR": {
+            "type": "string",
+            "example": "XOLACA2040001M000N"
+          },
+          "MENGE": {
+            "type": "string",
+            "example": "10.000"
+          },
+          "MEINS": {
+            "type": "string",
+            "example": "PCS"
+          },
+          "HEAT_NO": {
+            "type": "string",
+            "example": "393882Z"
+          },
+          "CHARG": {
+            "type": "string",
+            "example": "CA1448"
+          },
+          "AUFNR": {
+            "type": "string",
+            "example": "002000222321"
+          },
+          "KDAUF": {
+            "type": "string",
+            "example": ""
+          },
+          "KDPOS": {
+            "type": "string",
+            "example": "000000"
+          },
+          "LGORT": {
+            "type": "string",
+            "example": "DBG5"
+          },
+          "EBELN": {
+            "type": "string",
+            "example": ""
+          },
+          "EBELP": {
+            "type": "string",
+            "example": "00000"
+          },
+          "ERDAT": {
+            "type": "string",
+            "example": "20221129"
+          },
+          "CPUTM": {
+            "type": "string",
+            "example": "150105"
+          },
+          "LIFNR": {
+            "type": "string",
+            "example": ""
+          },
+          "SORTL": {
+            "type": "string",
+            "example": ""
+          },
+          "AUART": {
+            "type": "string",
+            "example": ""
+          },
+          "VORNR": {
+            "type": "string",
+            "example": ""
+          },
+          "NETPR": {
+            "type": "string",
+            "example": "0.00"
+          },
+          "WAERS": {
+            "type": "string",
+            "example": ""
+          },
+          "GMEIN": {
+            "type": "string",
+            "example": ""
+          },
+          "WEMNG": {
+            "type": "string",
+            "example": "0.000"
+          },
+          "GSTRP": {
+            "type": "string",
+            "example": "00000000"
+          },
+          "GLTRP": {
+            "type": "string",
+            "example": "00000000"
+          },
+          "MGVRG": {
+            "type": "string",
+            "example": "0.000"
+          },
+          "LMNGA": {
+            "type": "string",
+            "example": "0.000"
+          },
+          "MAKTX": {
+            "type": "string",
+            "example": ""
+          },
+          "NORMT": {
+            "type": "string",
+            "example": ""
+          },
+          "REMARK": {
+            "type": "string",
+            "example": ""
+          },
+          "NTGEW": {
+            "type": "string",
+            "example": "0.000"
+          },
+          "STATUS_PO": {
+            "type": "string",
+            "example": ""
+          },
+          "KTSCH": {
+            "type": "string",
+            "example": ""
+          },
+          "EDATU": {
+            "type": "string",
+            "example": "00000000"
+          },
+          "GROES": {
+            "type": "string",
+            "example": ""
+          },
+          "AEDAT": {
+            "type": "string",
+            "example": "00000000"
+          },
+          "ELIKZ": {
+            "type": "string",
+            "example": ""
+          },
+          "TXT": {
+            "type": "string",
+            "example": ""
+          },
+          "INFNR": {
+            "type": "string",
+            "example": ""
+          },
+          "ACTION": {
+            "type": "string",
+            "example": ""
+          },
+          "NONPO": {
+            "type": "string",
+            "example": ""
+          },
+          "RECODE": {
+            "type": "string",
+            "example": ""
+          },
+          "CMENGE": {
+            "type": "string",
+            "example": "0.000"
+          },
+          "MUTIPO": {
+            "type": "string",
+            "example": ""
+          },
+          "IDNRK": {
+            "type": "string",
+            "example": "BOLACA204000000"
+          },
+          "IDMKT": {
+            "type": "string",
+            "example": "鞍頭 A105 2\"x4\""
+          },
+          "NVORNR": {
+            "type": "string",
+            "example": "0060"
+          }
+        }
+      }
+    },
+    "responses": {
+      "DuplicateEmail": {
+        "description": "Email already taken",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            },
+            "example": {
+              "code": 400,
+              "message": "Email already taken"
+            }
+          }
+        }
+      },
+      "Unauthorized": {
+        "description": "Unauthorized",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            },
+            "example": {
+              "code": 401,
+              "message": "Please authenticate"
+            }
+          }
+        }
+      },
+      "Forbidden": {
+        "description": "Forbidden",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            },
+            "example": {
+              "code": 403,
+              "message": "Forbidden"
+            }
+          }
+        }
+      },
+      "NotFound": {
+        "description": "Not found",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            },
+            "example": {
+              "code": 404,
+              "message": "Not found"
+            }
+          }
+        }
+      }
+    },
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      },
+      "cookieAuth": {
+        "type": "apiKey",
+        "in": "cookie",
+        "name": "refresh_token"
+      }
+    }
+  },
+  "tags": [
+    {
+      "name": "Auth",
+      "description": "驗證"
+    },
+    {
+      "name": "Users",
+      "description": "帳號"
+    },
+    {
+      "name": "Logs",
+      "description": "系統紀錄"
+    },
+    {
+      "name": "Acceptance",
+      "description": "外加工入廠驗收單"
+    },
+    {
+      "name": "AccFlow",
+      "description": "流程卡"
+    },
+    {
+      "name": "DailyWork",
+      "description": "報工記錄"
+    },
+    {
+      "name": "FlowCard",
+      "description": "流程卡"
+    },
+    {
+      "name": "InvQuery",
+      "description": "庫存查詢"
+    },
+    {
+      "name": "MMDoc",
+      "description": "物料異動文件"
+    },
+    {
+      "name": "NotClosedPO",
+      "description": "採購單"
+    },
+    {
+      "name": "OutFacDoc",
+      "description": "出廠單"
+    },
+    {
+      "name": "ReReason",
+      "description": "流程卡狀態退回原因"
+    },
+    {
+      "name": "SO",
+      "description": "銷售訂單"
+    },
+    {
+      "name": "StandardPrice",
+      "description": "單價"
+    },
+    {
+      "name": "Vendor",
+      "description": "協力廠"
+    }
+  ]
+}
